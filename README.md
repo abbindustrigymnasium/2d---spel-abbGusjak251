@@ -26,3 +26,9 @@ Belysningen kommer att bestå av en enkel lampa placerad ovanför spelplanen + g
 
 Man rör sig med WASD/piltangenterna och skjuter genom att hålla ner vänsterklick på musen. För att avsluta spelet räcker det med att trycka escape och för att starta om spelet håller man in R.
 
+# Problem jag stött på 
+
+Textstorleken på UI är ej responsiv.
+Blod hamnar utanför spelplanen. 
+Fiender söker inte efter spelaren utan åker bara rakt fram.
+
