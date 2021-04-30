@@ -5,12 +5,18 @@ using UnityEngine;
 public class enemyScript : MonoBehaviour
 {
     private GameObject UIManager;
+    private GameObject GameManager;
+    private float halfPlaygroundWidth;
+    
+    public GameObject deathAudio;
     private Rigidbody rb;
     private ParticleSystem ps;
+    private AudioSource hitAudio;
     private const int maxHealth = 10;
     private const float speed = 7;
     private float deltaTime;
     private Color originalColor;
+    private bool chase = false;
     int health;
     
     void Start() {
@@ -19,6 +25,11 @@ public class enemyScript : MonoBehaviour
         ps = GetComponentInChildren<ParticleSystem>();
         originalColor = GetComponent<Renderer>().material.color;
         UIManager = GameObject.Find("Canvas");
+        GameManager = GameObject.Find("GameManager");
+        halfPlaygroundWidth = GameManager.GetComponent<GameManagerScript>().playgroundWidth();
+
+        // Audio
+        hitAudio = GetComponent<AudioSource>();
 
         // Set Alpha of Blood splat
         Transform bloodSprite = gameObject.transform.Find("BloodSplat");
@@ -32,30 +43,40 @@ public class enemyScript : MonoBehaviour
         StopCoroutine("Blink");
     }
 
-    void Update() {
-        RaycastHit hit;
-        if(Physics.Raycast(transform.position, transform.TransformDirection(Vector3.left), out hit, 50)) {
-            GameObject target = hit.transform.gameObject;
-            if(target.tag == "Player") {
-                rb.velocity = (transform.position-target.transform.position)/(-speed);
-            } else {
-                rb.velocity = new Vector3(-speed, rb.velocity.y, rb.velocity.z);
-            }
+    void FixedUpdate() {
+        // Check if player is in radius and if so then chase
+        chase = playerInRadius();
+        if(chase) {
+            GameObject target = GameObject.FindWithTag("Player");
+            Vector3 vec = (transform.position-target.transform.position)/(-speed);
+            rb.velocity = new Vector3(vec.x, rb.velocity.y, vec.z);
         } else {
             rb.velocity = new Vector3(-speed, rb.velocity.y, rb.velocity.z);
         }
+
+        // Prevent bad stuff from happening
+        transform.position = new Vector3(transform.position.x, transform.position.y, Mathf.Clamp(transform.position.z, -(halfPlaygroundWidth-10f), halfPlaygroundWidth-10f));
         Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.left)*50, Color.red);
     }
 
     public void takeDamage() {
+        // Spawn particles and play "damage audio"
         ps.Play();
+        hitAudio.Play();
+
+        // Decrease health and flash in red
         if(health > 0) {
             health--;
             StartCoroutine("Blink");
         } else {
+            // Create audio source
+            GameObject audioInstance = Instantiate(deathAudio);
+            audioInstance.transform.position = transform.position;
+
             Transform bloodSprite = gameObject.transform.Find("BloodSplat");
             bloodSprite.gameObject.SetActive(true);
             bloodSprite.SetParent(null);
+
 
             // Clean up some blood if there's too much on the ground
             GameObject[] bloodSplats = GameObject.FindGameObjectsWithTag("Blood");
@@ -67,9 +88,21 @@ public class enemyScript : MonoBehaviour
                 }
             }
             
+            // Increase number of kills by player
             UIManager.GetComponent<UIScript>().kills++;
+
+            // Destroy Self
             Destroy(gameObject);
         }
+    }
+    private bool playerInRadius() {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 50f);
+        foreach(var hitCollider in hitColliders) {
+            if(hitCollider.gameObject.tag == "Player") {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void OnCollisionEnter(Collision other) {

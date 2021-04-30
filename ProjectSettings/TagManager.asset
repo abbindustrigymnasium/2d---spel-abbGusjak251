@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - Blood
+  - SpawnManager
   layers:
   - Default
   - TransparentFX

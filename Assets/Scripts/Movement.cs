@@ -24,11 +24,16 @@ public class Movement : MonoBehaviour
         vmove = Input.GetAxisRaw("Vertical");
 
         rb.velocity = new Vector3(hmove*speed, rb.velocity.y, vmove*speed);
+
+        // If "Fuckup"
+        if(Input.GetKey(KeyCode.Q)) {
+            Death(true);
+        }
     }
 
-    public void Death() {
+    public void Death(bool fuckup) {
             // Destroy spawner
-            Destroy(GameObject.Find("SpawnManager"));
+            Destroy(GameObject.FindGameObjectWithTag("SpawnManager"));
 
             // Destroy all enemies
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
@@ -36,14 +41,24 @@ public class Movement : MonoBehaviour
                 Destroy(enemy);
             }
 
+            // Power to shoot away player and gun with
+            float power;
+            if(fuckup) power = 60f; else power = 30f;
+
             // Make player shoot away on death
             rb.constraints = RigidbodyConstraints.None;
-            rb.AddForce(Vector3.up * 20f + Vector3.forward * 20f, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * power + Vector3.forward * power, ForceMode.Impulse);
 
             // Release Gun
             GameObject gun = GameObject.Find("glock19");
             gun.transform.SetParent(null);
             gun.AddComponent<Rigidbody>();
+            gun.GetComponent<Rigidbody>().AddForce(Vector3.up * power + Vector3.forward * power, ForceMode.Impulse);
+            if(fuckup) {
+                gun.GetComponent<gunScript>().Shake(10f);
+            } else {
+                gun.GetComponent<gunScript>().Shake(2f);
+            }
             Destroy(gun.GetComponent<gunScript>());
 
             GameObject.Find("Canvas").GetComponent<UIScript>().showGameOver();
@@ -59,7 +74,7 @@ public class Movement : MonoBehaviour
     private void OnCollisionEnter(Collision other) {
         if(dead) return;
         if(other.gameObject.tag == "Enemy") {
-            Death();
+            Death(false);
         }
     }
 }

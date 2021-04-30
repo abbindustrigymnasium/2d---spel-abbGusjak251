@@ -8,7 +8,7 @@ public class spawnScript : MonoBehaviour
     public int wave = 0;
     private const int instances = 2;
     private const float spawnDelay = 3f;
-    private int timer  = 1000;
+    private int timer  = 500;
     // Start is called before the first frame update
     void Start()
     {
@@ -16,7 +16,7 @@ public class spawnScript : MonoBehaviour
     }
 
     IEnumerator SpawnCoroutine() {
-        timer = 2000;
+        timer = 500;
         wave++;
         UIManager.GetComponent<UIScript>().wave = wave;
         for(int i=0; i<wave*instances; i++) {
