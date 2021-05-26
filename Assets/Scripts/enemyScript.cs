@@ -5,6 +5,7 @@ using UnityEngine;
 public class enemyScript : MonoBehaviour
 {
     private GameObject UIManager;
+    private GameObject player;
     private GameObject GameManager;
     private float halfPlaygroundWidth;
     
@@ -12,7 +13,7 @@ public class enemyScript : MonoBehaviour
     private Rigidbody rb;
     private ParticleSystem ps;
     private AudioSource hitAudio;
-    private const int maxHealth = 10;
+    private const int maxHealth = 7;
     private const float speed = 7;
     private float deltaTime;
     private Color originalColor;
@@ -28,6 +29,8 @@ public class enemyScript : MonoBehaviour
         GameManager = GameObject.Find("GameManager");
         halfPlaygroundWidth = GameManager.GetComponent<GameManagerScript>().playgroundWidth();
 
+        // Find Player
+        player = GameObject.FindWithTag("Player");
         // Audio
         hitAudio = GetComponent<AudioSource>();
 
@@ -43,13 +46,33 @@ public class enemyScript : MonoBehaviour
         StopCoroutine("Blink");
     }
 
+    public void facePlayer() {
+        /*ransform playerPos = player.transform;
+        Vector3 relative = transform.InverseTransformPoint(playerPos.position);
+        float lookAt = Mathf.Atan2(relative.x, relative.z) * Mathf.Rad2Deg;
+        
+        // Rotate and look at player
+        transform.rotation = Quaternion.Euler(transform.rotation.x, lookAt, transform.rotation.z);
+        Debug.Log(transform.rotation);
+
+        */
+
+        Vector3 lookPos = transform.position - player.transform.position;
+        lookPos = Quaternion.AngleAxis(-90, Vector3.up) * lookPos;
+        Quaternion rotation = Quaternion.LookRotation(lookPos);
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 10f);
+        
+
+    }
+
     void FixedUpdate() {
         // Check if player is in radius and if so then chase
         chase = playerInRadius();
         if(chase) {
-            GameObject target = GameObject.FindWithTag("Player");
-            Vector3 vec = (transform.position-target.transform.position)/(-speed);
+            Vector3 vec = (transform.position-player.transform.position)/(-speed);
             rb.velocity = new Vector3(vec.x, rb.velocity.y, vec.z);
+            facePlayer();
         } else {
             rb.velocity = new Vector3(-speed, rb.velocity.y, rb.velocity.z);
         }
@@ -96,7 +119,7 @@ public class enemyScript : MonoBehaviour
         }
     }
     private bool playerInRadius() {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 50f);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 90f);
         foreach(var hitCollider in hitColliders) {
             if(hitCollider.gameObject.tag == "Player") {
                 return true;

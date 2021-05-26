@@ -9,13 +9,21 @@ public class gunScript : MonoBehaviour
     private float shootTimer = 0;
     public GameObject cam;
     public ParticleSystem ps;
-    // Start is called before the first frame update
+    private float zmove = 10f;
+    private void initGunPosition() {
+        Transform player = GameObject.FindWithTag("Player").transform;
+        transform.position = new Vector3(player.position.x, player.position.y, player.position.z+zmove);
+    }
     void Start()
     {
+        // Object and component references
         anim = gameObject.GetComponent<Animator>();
         ps = GameObject.Find("MuzzleFlash").GetComponent<ParticleSystem>();
         cam = GameObject.Find("Main Camera");
         gunSound = GetComponent<AudioSource>();
+
+        // Set Start Position of Gun
+        initGunPosition();
     }
 
     void Shoot() {
@@ -42,12 +50,23 @@ public class gunScript : MonoBehaviour
     public void Shake(float amount) {
         cam.GetComponent<screenShake>().Shake(amount);
     }
+    private void moveGun() {
+        Transform player = GameObject.FindWithTag("Player").transform;
+        zmove = -zmove;
+        Vector3 to = new Vector3(player.position.x, player.position.y, player.position.z+zmove);
+        transform.position = Vector3.Lerp(transform.position, to, 10f);
+    }
 
     // Update is called once per frame
     void Update()
     {
+        // Inputs
         if(Input.GetMouseButton(0) && shootTimer == 0) {
             Shoot();
+        }
+
+        if(Input.GetKeyDown(KeyCode.LeftShift)) {
+            moveGun();
         }
 
         if(Input.GetMouseButtonDown(1)) {

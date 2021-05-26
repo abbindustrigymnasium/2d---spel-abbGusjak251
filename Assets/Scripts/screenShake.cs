@@ -44,7 +44,7 @@ public class screenShake : MonoBehaviour
         } else {
             shake = 0f;
             Vector3 startPos = new Vector3(xstart, ystart, zstart);
-            transform.position = Vector3.MoveTowards(transform.position, startPos, .05f);
+            transform.position = Vector3.Lerp(transform.position, startPos, .05f);
         }
 
 

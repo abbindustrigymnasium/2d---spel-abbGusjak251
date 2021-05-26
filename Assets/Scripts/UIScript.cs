@@ -10,14 +10,16 @@ public class UIScript : MonoBehaviour
     public int wave = 0;
     public int b = 0;
     private Text[] texts = new Text[2];
-    private GameObject player;
-    Text killDisplay, waveDisplay, gameOverDisplay;
+    private GameObject player, audioSlider;
+    Text killDisplay, waveDisplay, gameOverDisplay, controlsDisplay;
     private void Awake()
     {
         // Find UI elements
         killDisplay = GameObject.Find("KillDisplay").GetComponent<Text>();
         waveDisplay = GameObject.Find("WaveDisplay").GetComponent<Text>();
         gameOverDisplay = GameObject.Find("GameOverDisplay").GetComponent<Text>();
+        controlsDisplay = GameObject.Find("Controls").GetComponent<Text>();
+        audioSlider = GameObject.FindWithTag("AudioSlider");
 
         // Get screen width + height
         screenW = Screen.width;
@@ -34,6 +36,8 @@ public class UIScript : MonoBehaviour
         killDisplay.transform.position = new Vector2(margin, screenH*0.95f);
         waveDisplay.transform.position = new Vector2(screenW-margin, screenH*0.95f);
         gameOverDisplay.transform.position = new Vector2(screenW/2, screenH*0.95f);
+        audioSlider.transform.position = new Vector2((screenW/2)-5f, screenH*0.05f);
+        controlsDisplay.transform.position = new Vector3((screenW/2)-5f, screenH*0.23f);
 
         // Set font sizes
         foreach(Text t in texts) {

@@ -6,7 +6,8 @@ public class Movement : MonoBehaviour
 {
     public Rigidbody rb;
     public bool dead;
-    public float speed = 30f;
+    public float speed = 36f;
+    private float yrot = 0f;
     private Transform ground;
     private float hmove;
     private float vmove;
@@ -22,6 +23,7 @@ public class Movement : MonoBehaviour
         if(dead) return;
         hmove = Input.GetAxisRaw("Horizontal");
         vmove = Input.GetAxisRaw("Vertical");
+        Vector3 mousePos = Input.mousePosition;
 
         rb.velocity = new Vector3(hmove*speed, rb.velocity.y, vmove*speed);
 

@@ -16,7 +16,7 @@ public class spawnScript : MonoBehaviour
     }
 
     IEnumerator SpawnCoroutine() {
-        timer = 500;
+        timer = 300;
         wave++;
         UIManager.GetComponent<UIScript>().wave = wave;
         for(int i=0; i<wave*instances; i++) {
